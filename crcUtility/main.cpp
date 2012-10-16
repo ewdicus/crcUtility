@@ -59,6 +59,12 @@ bool createCRCFile(fs::path file){
         fs::ifstream ifsFile(file, std::ios::binary | std::ios::in);
         if(ifsFile.is_open()){
             contents = std::string(static_cast<std::stringstream const&>(std::stringstream() << ifsFile.rdbuf()).str());
+            // The plugin won't get the UTF-8 BOM so we'll ignore it too.
+            // Other BOM's are still present in the served file so we don't ignore those.
+            int bom = contents.find("\xef\xbb\xbf");
+            if(bom != std::string::npos){
+                contents.erase(bom,3);
+            }
         }
         ifsFile.close();
     }catch(fs::ofstream::failure e){
